@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talktwirl - Login & Signup</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Poppins:wght@300;400;500;600&display=swap">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #000000;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .container {
+            width: 100%;
+            max-width: 360px;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+            perspective: 1200px;
+        }
+        .flip-container {
+            perspective: 1200px;
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto;
+            position: relative;
+            /* slip-in animation on load */
+        }
+        .slip-in {
+            animation: slipInUp 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        @keyframes slipInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(120px) scale(0.95);
+            }
+            60% {
+                opacity: 1;
+                transform: translateY(-10px) scale(1.03);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .flipper {
+            transition: transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform-style: preserve-3d;
+            position: relative;
+            width: 100%;
+            min-height: 480px;
+        }
+        .flipped .flipper {
+            transform: rotateY(180deg);
+        }
+        .form-box {
+            background: rgba(0, 0, 0, 0.493);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 30px rgba(212, 55, 204, 0.3),
+                        inset 0 0 15px rgba(212, 55, 178, 0.2);
+            border: 1px solid rgba(212, 55, 212, 0.3);
+            width: 100%;
+            min-height: 480px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            backface-visibility: hidden;
+            opacity: 1;
+            transition: none;
+        }
+        .form-box.signup {
+            transform: rotateY(180deg);
+        }
+        .flipped .form-box.login,
+        .flip-container:not(.flipped) .form-box.signup {
+            pointer-events: none;
+        }
+        .flipped .form-box.signup,
+        .flip-container:not(.flipped) .form-box.login {
+            pointer-events: auto;
+        }
+        h2 {
+            background: linear-gradient(90deg, #00FFFF, #800080);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(255, 0, 212, 0.5);
+            animation: glow 2s infinite alternate;
+            font-size: 24px;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 5px rgba(255, 0, 200, 0.5); }
+            to { text-shadow: 0 0 15px rgba(255, 0, 170, 0.8); }
+        }
+        p {
+            color: rgba(255, 0, 157, 0.7);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+            transform: translateZ(10px);
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px 0;
+            font-size: 15px;
+            color: #e100ff;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 0, 212, 0.3);
+            outline: none;
+            transition: 0.3s;
+            z-index: 1;
+            position: relative;
+        }
+        .input-field:focus {
+            border-bottom-color: transparent;
+        }
+        .glow-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 221, 0.5), #ff00f2, rgba(255, 0, 179, 0.5), transparent);
+            transition: 0.4s;
+            z-index: 0;
+        }
+        .input-field:focus ~ .glow-line {
+            width: 100%;
+            box-shadow: 0 0 10px rgba(234, 0, 255, 0.7);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -100% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .input-group label {
+            position: absolute;
+            top: 12px;
+            left: 0;
+            color: rgba(255, 0, 221, 0.7);
+            font-size: 15px;
+            pointer-events: none;
+            transition: 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+        .input-field:focus ~ label,
+        .input-field:valid ~ label {
+            top: -12px;
+            font-size: 12px;
+            color: #ff00d4;
+            text-shadow: 0 0 5px rgba(255, 0, 200, 0.5);
+            letter-spacing: 1px;
+        }
+        .remember-forgot {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            font-size: 13px;
+            gap: 6px;
+        }
+        .remember {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        .remember input {
+            margin-right: 5px;
+            accent-color: #ff00ea;
+        }
+        .remember label, .forgot {
+            color: rgba(255, 0, 242, 0.8);
+            font-size: 13px;
+        }
+        .remember label a {
+            color: #ff00f2 !important;
+            text-decoration: none;
+        }
+        .forgot {
+            text-decoration: none;
+            transition: 0.3s;
+            position: relative;
+            margin-left: 0;
+            align-self: center;
+        }
+        .forgot:hover {
+            color: #ff00f2;
+            text-shadow: 0 0 5px rgba(255, 0, 157, 0.5);
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px 0;
+            background: #000;
+            border: 1px solid #ff00d4;
+            border-radius: 25px;
+            color: #ff009d;
+            font-size: 15px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.5s;
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(20px);
+            font-family: 'Cinzel', serif;
+            margin-bottom: 10px;
+        }
+        .login-btn span {
+            position: relative;
+            z-index: 1;
+            transition: 0.3s;
+        }
+        .btn-glow {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 200, 0.2), rgba(255, 0, 255, 0.3), rgba(255, 0, 191, 0.2), transparent);
+            transition: 0.5s;
+        }
+        .login-btn:hover .btn-glow {
+            left: 100%;
+        }
+        .login-btn:hover {
+            background: rgba(255, 0, 191, 0.1);
+            box-shadow: 0 0 20px rgba(255, 0, 234, 0.5),
+                        inset 0 0 10px rgba(255, 0, 221, 0.3);
+            transform: translateZ(20px) scale(1.05);
+        }
+        .login-btn:hover span {
+            text-shadow: 0 0 5px rgba(255, 0, 212, 0.7);
+        }
+        .login-btn:active {
+            transform: translateZ(20px) scale(0.98);
+        }
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 0, 179, 0.7);
+            font-size: 13px;
+        }
+        .signup-link a {
+            color: #ff00c8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: 0.3s;
+            position: relative;
+        }
+        .signup-link a:hover {
+            text-shadow: 0 0 5px rgba(255, 0, 191, 0.7);
+        }
+        .signup-link a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: #e209ff;
+            transition: 0.3s;
+        }
+        .signup-link a:hover::after {
+            width: 100%;
+            box-shadow: 0 0 5px rgba(255, 0, 149, 0.7);
+        }
+        .type-animate.flicker {
+            animation: flickerGlow 0.25s linear;
+        }
+        @keyframes flickerGlow {
+            0% { text-shadow: 0 0 2px #ff00f2, 0 0 8px #ff00f2; }
+            20% { text-shadow: 0 0 8px #ff00f2, 0 0 16px #00fff2; }
+            40% { text-shadow: 0 0 2px #ff00f2, 0 0 8px #ff00f2; }
+            60% { text-shadow: 0 0 12px #ff00f2, 0 0 24px #00fff2; }
+            80% { text-shadow: 0 0 4px #ff00f2, 0 0 12px #ff00f2; }
+            100% { text-shadow: 0 0 2px #ff00f2, 0 0 8px #ff00f2; }
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            .form-box {
+                padding: 25px 20px;
+            }
+        }
+        @keyframes glowSplash {
+            from { filter: drop-shadow(0 0 8px #ff00f2); }
+            to { filter: drop-shadow(0 0 24px #00fff2); }
+        }
+        @keyframes glowSplashText {
+            from { text-shadow: 0 0 16px #ff00f2, 0 0 32px #00fff2; }
+            to { text-shadow: 0 0 32px #00fff2, 0 0 48px #ff00f2; }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    <div id="sound-splash" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999;background:rgba(10,0,30,0.85);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;transition:opacity 0.5s;">
+        <div style="text-align:center;">
+            <div style="font-size:3em;animation:glowSplash 1.2s infinite alternate;">🔊</div>
+            <div style="margin-top:18px;font-size:1.3em;color:#fff;font-family:'Cinzel',serif;text-shadow:0 0 16px #ff00f2,0 0 32px #00fff2;letter-spacing:2px;animation:glowSplashText 1.2s infinite alternate;">Tap anywhere to enable sound</div>
+        </div>
+    </div>
+    <audio id="jarvis-audio" src="bg.m4a" preload="auto"></audio>
+    <div class="container">
+        <div class="flip-container" id="flip-container">
+            <div class="flipper">
+                <div class="form-box login">
+                    <h2><span class="type-animate" id="login-heading">Talktwirl</span></h2>
+                    <p><span class="type-animate" id="login-sub">Welcome back</span></p>
+                    <form id="login-form">
+                        <div class="input-group">
+                            <input type="text" id="username" required class="input-field">
+                            <label for="username"><span class="type-animate" id="login-label-username">Username</span></label>
+                            <div class="glow-line"></div>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="password" required class="input-field">
+                            <label for="password"><span class="type-animate" id="login-label-password">Password</span></label>
+                            <div class="glow-line"></div>
+                        </div>
+                        <div class="remember-forgot">
+                            <div class="remember">
+                                <input type="checkbox" id="remember">
+                                <label for="remember"><a href="#">Terms & conditions</a></label>
+                            </div>
+                            <a href="#" class="forgot">Forgot Password?</a>
+                        </div>
+                        <button type="submit" class="login-btn">
+                            <span class="type-animate" id="login-btn-text">LOG IN</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                        <div class="signup-link">
+                            <span class="type-animate" id="login-signup-link">Don't have an account?</span> <a href="#" id="show-register"><span class="type-animate" id="login-signup-link-btn">sign in</span></a>
+                        </div>
+                    </form>
+                </div>
+                <div class="form-box signup">
+                    <h2><span class="type-animate" id="signup-heading">Talktwirl</span></h2>
+                    <p><span class="type-animate" id="signup-sub">Create your account</span></p>
+                    <form id="register-form">
+                        <div class="input-group">
+                            <input type="email" id="reg-email" required class="input-field">
+                            <label for="reg-email"><span class="type-animate" id="signup-label-email">Email address</span></label>
+                            <div class="glow-line"></div>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="reg-otp" required class="input-field">
+                            <label for="reg-otp"><span class="type-animate" id="signup-label-otp">Enter OTP</span></label>
+                            <div class="glow-line"></div>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="reg-password" required class="input-field">
+                            <label for="reg-password"><span class="type-animate" id="signup-label-password">Create a password</span></label>
+                            <div class="glow-line"></div>
+                        </div>
+                        <button type="submit" class="login-btn">
+                            <span class="type-animate" id="signup-btn-text">REGISTER</span>
+                            <div class="btn-glow"></div>
+                        </button>
+                        <div class="signup-link">
+                            <span class="type-animate" id="signup-login-link">Already have an account?</span> <a href="#" id="show-login"><span class="type-animate" id="signup-login-link-btn">Log in</span></a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="particles.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let soundEnabled = false;
+            const soundSplash = document.getElementById('sound-splash');
+            // Typing animation for headings, subheadings, labels, buttons, and links
+            function typeText(element, text, speed = 40, callback) {
+                element.textContent = '';
+                let i = 0;
+                function type() {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i);
+                        // Flicker effect: randomly add/remove class
+                        if (Math.random() > 0.7) {
+                            element.classList.add('flicker');
+                            setTimeout(() => element.classList.remove('flicker'), 120);
+                        }
+                        i++;
+                        setTimeout(type, speed);
+                    } else if (callback) {
+                        callback();
+                    }
+                }
+                type();
+            }
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 100,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#ff00f2"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#4b1b97"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.8,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 1,
+                            "opacity_min": 0.4,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 5,
+                        "random": true,
+                        "anim": {
+                            "enable": true,
+                            "speed": 2,
+                            "size_min": 1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#ff00f2",
+                        "opacity": 0.6,
+                        "width": 1.5
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": true,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": true,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 400,
+                            "line_linked": {
+                                "opacity": 1
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 100,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+            const flipContainer = document.getElementById('flip-container');
+            const audio = document.getElementById('jarvis-audio');
+            const loginHeading = document.getElementById('login-heading');
+            const signupHeading = document.getElementById('signup-heading');
+            const loginSub = document.getElementById('login-sub');
+            const signupSub = document.getElementById('signup-sub');
+            const loginLabelUsername = document.getElementById('login-label-username');
+            const loginLabelPassword = document.getElementById('login-label-password');
+            const loginBtnText = document.getElementById('login-btn-text');
+            const loginSignupLink = document.getElementById('login-signup-link');
+            const loginSignupLinkBtn = document.getElementById('login-signup-link-btn');
+            const signupLabelEmail = document.getElementById('signup-label-email');
+            const signupLabelOtp = document.getElementById('signup-label-otp');
+            const signupLabelPassword = document.getElementById('signup-label-password');
+            const signupBtnText = document.getElementById('signup-btn-text');
+            const signupLoginLink = document.getElementById('signup-login-link');
+            const signupLoginLinkBtn = document.getElementById('signup-login-link-btn');
+
+            // Play entrance animation and typing on load (no sound)
+            function playEntranceAnimation() {
+                flipContainer.classList.add('slip-in');
+                if (loginHeading) typeText(loginHeading, 'Talktwirl');
+                if (loginSub) typeText(loginSub, 'Welcome back', 35);
+                if (loginLabelUsername) typeText(loginLabelUsername, 'Username', 30);
+                if (loginLabelPassword) typeText(loginLabelPassword, 'Password', 30);
+                if (loginBtnText) typeText(loginBtnText, 'LOG IN', 40);
+                if (loginSignupLink) typeText(loginSignupLink, "Don't have an account?", 20);
+                if (loginSignupLinkBtn) typeText(loginSignupLinkBtn, 'sign in', 40);
+                setTimeout(function() {
+                    flipContainer.classList.remove('slip-in');
+                }, 2000);
+            }
+
+            // Try to play sound on load, show sound button if blocked
+            function tryEnableSoundOnLoad() {
+                if (!audio) return;
+                audio.currentTime = 0;
+                audio.play().then(function() {
+                    soundEnabled = true;
+                    if (soundSplash) soundSplash.style.display = 'none';
+                }).catch(function() {
+                    soundEnabled = false;
+                    if (soundSplash) {
+                        soundSplash.style.opacity = '1';
+                        soundSplash.style.display = 'flex';
+                    }
+                });
+            }
+
+            // When user taps the splash, enable sound for session
+            if (soundSplash) {
+                soundSplash.addEventListener('click', function() {
+                    if (!audio) return;
+                    soundSplash.style.opacity = '0';
+                    setTimeout(function() {
+                        soundSplash.style.display = 'none';
+                        // Now start both sound and animation together
+                        if (audio) {
+                            audio.currentTime = 0;
+                            audio.play().then(function() {
+                                soundEnabled = true;
+                            }).catch(() => {});
+                        }
+                        if (typeof playEntranceAnimation === 'function') {
+                            playEntranceAnimation();
+                        }
+                    }, 500);
+                });
+            }
+
+            // Play entrance animation (no sound) on load
+            playEntranceAnimation();
+            tryEnableSoundOnLoad();
+
+            // Flip logic: always try to play sound and animation on every flip
+            document.getElementById('show-register').onclick = function(e) {
+                e.preventDefault();
+                flipContainer.classList.add('flipped');
+                if (soundEnabled && audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(() => {});
+                }
+                setTimeout(function() {
+                    if (signupHeading) typeText(signupHeading, 'Talktwirl');
+                    if (signupSub) typeText(signupSub, 'Create your account', 35);
+                    if (signupLabelEmail) typeText(signupLabelEmail, 'Email address', 30);
+                    if (signupLabelOtp) typeText(signupLabelOtp, 'Enter OTP', 30);
+                    if (signupLabelPassword) typeText(signupLabelPassword, 'Create a password', 30);
+                    if (signupBtnText) typeText(signupBtnText, 'REGISTER', 40);
+                    if (signupLoginLink) typeText(signupLoginLink, 'Already have an account?', 20);
+                    if (signupLoginLinkBtn) typeText(signupLoginLinkBtn, 'Log in', 40);
+                }, 400);
+            };
+            document.getElementById('show-login').onclick = function(e) {
+                e.preventDefault();
+                flipContainer.classList.remove('flipped');
+                if (soundEnabled && audio) {
+                    audio.currentTime = 0;
+                    audio.play().catch(() => {});
+                }
+                setTimeout(function() {
+                    if (loginHeading) typeText(loginHeading, 'Talktwirl');
+                    if (loginSub) typeText(loginSub, 'Welcome back', 35);
+                    if (loginLabelUsername) typeText(loginLabelUsername, 'Username', 30);
+                    if (loginLabelPassword) typeText(loginLabelPassword, 'Password', 30);
+                    if (loginBtnText) typeText(loginBtnText, 'LOG IN', 40);
+                    if (loginSignupLink) typeText(loginSignupLink, "Don't have an account?", 20);
+                    if (loginSignupLinkBtn) typeText(loginSignupLinkBtn, 'sign in', 40);
+                }, 400);
+            };
+        });
+    </script>
+</body>
+</html>
